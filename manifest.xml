@@ -1,0 +1,14 @@
+<package>
+  <description brief="Map Manager">
+  	       TODO
+  </description>
+  <author>TODO</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ TODO</url>
+  <depend package="appmanandroid"/>
+
+  <export>
+    <rosjava-android-app />
+  </export>
+</package>
