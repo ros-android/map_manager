@@ -54,20 +54,24 @@ import android.content.DialogInterface;
 import android.widget.Button;
 import android.widget.EditText;
 import android.view.KeyEvent;
+import ros.android.views.MapView;
+import ros.android.views.MapDisplay;
 
 /**
  * @author damonkohler@google.com (Damon Kohler)
  * @author pratkanis@willowgarage.com (Tony Pratkanis)
  */
-public class MapManager extends RosAppActivity {
+public class MapManager extends RosAppActivity implements MapDisplay.MapDisplayStateCallback {
   private ListView mapListView;
   private LinearLayout mapListLayout;
   private LinearLayout mapDetailLayout;
   private TextView mapNameView;
+  private TextView mapLoadView;
   private ProgressDialog waitingDialog;
   private AlertDialog errorDialog;
   private String mapId;
   private String mapName;
+  private MapView mapView;
   private static final int NAME_MAP_DIALOG_ID = 0;
   ArrayList<MapListEntry> mapList = new ArrayList<MapListEntry>();
 
@@ -83,7 +87,11 @@ public class MapManager extends RosAppActivity {
     mapListLayout = (LinearLayout)findViewById(R.id.map_list_view);
     mapDetailLayout = (LinearLayout)findViewById(R.id.map_detail_view);
     mapNameView = (TextView)findViewById(R.id.map_name_view);
-
+    mapLoadView = (TextView)findViewById(R.id.map_load_view);
+    
+    mapView = (MapView) findViewById(R.id.map_view);
+    mapView.addMapDisplayCallback(this);
+    
     mapListLayout.setVisibility(mapListLayout.VISIBLE);
     mapDetailLayout.setVisibility(mapListLayout.GONE);
   }
@@ -120,11 +128,42 @@ public class MapManager extends RosAppActivity {
         }});
   }
   
+  @Override
+  public void onMapDisplayState(final MapDisplay.State state) {
+    if (state == MapDisplay.State.STATE_WORKING) {
+      runOnUiThread(new Runnable() {
+          @Override public void run() {
+            mapView.setVisibility(mapView.VISIBLE);
+            mapLoadView.setVisibility(mapLoadView.GONE);
+          }});
+    }
+  }
+
   private void updateMapView(MapListEntry map) {
     mapNameView.setText(map.name);
     mapId = map.map_id;
     mapName = map.name;
-    //TODO: request publication for visualization
+    mapView.resetMapDisplayState();
+    mapView.setVisibility(mapView.INVISIBLE);
+    mapLoadView.setVisibility(mapLoadView.VISIBLE);
+    try {
+      ServiceClient<PublishMap.Request, PublishMap.Response> publishMapServiceClient =
+        getNode().newServiceClient("publish_map", "map_store/PublishMap");
+      PublishMap.Request req = new PublishMap.Request();
+      req.map_id = map.map_id;
+      publishMapServiceClient.call(req, new ServiceResponseListener<PublishMap.Response>() {
+          @Override public void onSuccess(PublishMap.Response message) {
+            //Don't really need to do anything.
+          }
+          @Override public void onFailure(RemoteException e) {
+            e.printStackTrace();
+            safeShowErrorDialog("Error loading map: " + e.toString());
+          }
+        });
+    } catch (Exception e) {
+      e.printStackTrace();
+      safeShowErrorDialog("Error loading map: " + e.toString());
+    }
   }
 
   public void renameMap(View view) {
@@ -219,12 +258,19 @@ public class MapManager extends RosAppActivity {
   protected void onNodeCreate(Node node) {
     super.onNodeCreate(node);
     updateMapList();
+    try {
+      mapView.start(node);
+    } catch (RosException e) {
+      e.printStackTrace();
+      safeShowErrorDialog("Starting failed: " + e.toString());
+    }
   }
 
   /** Called when the node is destroyed */
   @Override
   protected void onNodeDestroy(Node node) {
     super.onNodeDestroy(node);
+    mapView.stop();
   }
   
   /** Creates the menu for the options */
