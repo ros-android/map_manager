@@ -14,5 +14,46 @@
                   android:background="#ff404040"
                   android:id="@+id/top_bar" />
     <!--Add your layout here -->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		  android:orientation="vertical"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content" 
+		  android:id="@+id/map_list_view" >
+      <TextView android:layout_width="fill_parent" android:layout_height="50dp"
+		android:text="Installed Maps"
+		android:textSize="30sp" /> 
+      <ListView android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/map_list"
+		android:divider="#00000000" 
+		android:dividerHeight="0sp" 
+		android:footerDividersEnabled="true"
+		android:headerDividersEnabled="true" />
+    </LinearLayout>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		  android:orientation="vertical"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content" 
+		  android:id="@+id/map_detail_view" >
+      <TextView android:layout_width="fill_parent" android:layout_height="50dp"
+		android:text="Name:"
+		android:textSize="30sp"
+		android:id="@+id/map_name_view" />
+      <Button android:layout_width="fill_parent" 
+	      android:layout_height="wrap_content" 
+	      android:text="Rename Map"
+	      android:onClick="renameMap" />
+      <Button android:layout_width="fill_parent" 
+	      android:layout_height="wrap_content" 
+	      android:text="Delete Map"
+	      android:onClick="deleteMap" />
+      <Button android:layout_width="fill_parent" 
+	      android:layout_height="wrap_content" 
+	      android:text="Back"
+	      android:onClick="returnToMain" />
+      
+    </LinearLayout>
   </LinearLayout>
 </LinearLayout>
