@@ -39,7 +39,7 @@ import org.ros.exception.RemoteException;
 import org.ros.node.service.ServiceClient;
 import org.ros.message.map_store.MapListEntry;
 import org.ros.namespace.NameResolver;
-import org.ros.service.map_store.ListLastMaps;
+import org.ros.service.map_store.ListMaps;
 import org.ros.service.map_store.DeleteMap;
 import org.ros.service.map_store.PublishMap;
 import org.ros.service.map_store.RenameMap;
@@ -231,10 +231,10 @@ public class MapManager extends RosAppActivity implements MapDisplay.MapDisplayS
   private void updateMapList() {
     try {
       safeShowWaitingDialog("Waiting for maps...");
-      ServiceClient<ListLastMaps.Request, ListLastMaps.Response> listMapsServiceClient =
-        getNode().newServiceClient("list_last_maps", "map_store/ListLastMaps");
-      listMapsServiceClient.call(new ListLastMaps.Request(), new ServiceResponseListener<ListLastMaps.Response>() {
-          @Override public void onSuccess(ListLastMaps.Response message) {
+      ServiceClient<ListMaps.Request, ListMaps.Response> listMapsServiceClient =
+        getNode().newServiceClient("list_maps", "map_store/ListMaps");
+      listMapsServiceClient.call(new ListMaps.Request(), new ServiceResponseListener<ListMaps.Response>() {
+          @Override public void onSuccess(ListMaps.Response message) {
             Log.i("MapNav", "readAvailableMapList() Success");
             safeDismissWaitingDialog();
             updateMapListGui(message.map_list);

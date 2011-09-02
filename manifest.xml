@@ -7,6 +7,7 @@
   <review status="unreviewed" notes=""/>
   <url>http://ros.org/wiki/ TODO</url>
   <depend package="appmanandroid"/>
+  <depend package="map_store"/>
 
   <export>
     <rosjava-android-app />
