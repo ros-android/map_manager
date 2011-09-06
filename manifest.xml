@@ -10,6 +10,6 @@
   <depend package="map_store"/>
 
   <export>
-    <rosjava-android-app />
+    <rosjava-android-app target="android-9" />
   </export>
 </package>
