@@ -229,6 +229,10 @@ public class MapManager extends RosAppActivity implements MapDisplay.MapDisplayS
   }
 
   private void updateMapList() {
+    updateMapList(0);
+  }
+
+  private void updateMapList(final int n) {
     try {
       safeShowWaitingDialog("Waiting for maps...");
       ServiceClient<ListMaps.Request, ListMaps.Response> listMapsServiceClient =
@@ -240,7 +244,15 @@ public class MapManager extends RosAppActivity implements MapDisplay.MapDisplayS
             updateMapListGui(message.map_list);
           }
           @Override public void onFailure(RemoteException e) {
-            Log.i("MapNav", "readAvailableMapList() Failure");
+            if (n < 30) {
+              Log.i("MapManager", "Waiting for service");
+              try {
+                Thread.sleep(1000L);
+                updateMapList(n + 1);
+                return;
+              } catch (Exception ex) {}
+            }
+            Log.i("MapManager", "readAvailableMapList() Failure");
             safeToastStatus("Reading map list failed: " + e.getMessage());
             safeDismissWaitingDialog();
             e.printStackTrace();
@@ -248,6 +260,14 @@ public class MapManager extends RosAppActivity implements MapDisplay.MapDisplayS
           }
         });
     } catch (Exception e) {
+      if (n < 30) {
+        Log.i("MapManager", "Waiting for service");
+        try {
+          Thread.sleep(1000L);
+          updateMapList(n + 1);
+          return;
+        } catch (Exception ex) {}
+      }
       e.printStackTrace();
       safeShowErrorDialog("Error during list update: " + e.toString());
     }
